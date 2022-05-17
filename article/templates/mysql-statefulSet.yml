@@ -2,55 +2,60 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mysql-set
-  namespace: hometask
+  name: {{ .Values.mysql.name }}
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     matchLabels:
-      app: article
-  serviceName: "mysql"
-  replicas: 1
+      app: {{ .Values.labels }}
+  serviceName: {{ .Values.mysql.serviceName }}
+  replicas: {{ .Values.mysql.replicas }}
   template:
     metadata:
       labels:
-        app: article  
+        app: {{ .Values.labels }}
     spec:
-      terminationGracePeriodSeconds: 10
+      terminationGracePeriodSeconds: {{ .Values.mysql.terminationGracePeriod }}
       containers:
       - name: mysql
-        image: mysql
+        image: {{ .Values.mysql.image }}
         ports:
         - containerPort: 3306
-          name: mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysqlsecret
+              name: {{ .Values.secret.name }}
               key: password
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: mysqlsecret
+              name: {{ .Values.secret.name }}
               key: dbname
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: mysqlsecret
+              name: {{ .Values.secret.name }}
               key: dbuser
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysqlsecret
+              name: {{ .Values.secret.name }}
               key: dbpass
         volumeMounts:
-        - name: mysql-vol
+        - name: {{ .Values.mysql.volume.name }}
           mountPath: /var/lib/mysql
+        - name: dump-mysql-vol
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: dump-mysql-vol
+        configMap:
+          name: articles
   volumeClaimTemplates:
   - metadata:
-      name: mysql-vol
+      name: {{ .Values.mysql.volume.name }}
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: {{ .Values.mysql.volume.accessModes }}
       resources:
         requests:
-          storage: 1Gi
+          storage: {{ .Values.mysql.volume.storage }}

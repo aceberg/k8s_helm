@@ -1,0 +1,34 @@
+#
+namespace: hometask
+labels: article
+
+mysql:
+  name: mysql-set
+  replicas: 2
+  terminationGracePeriod: 10
+  image: mysql
+  serviceName: mysql-service
+
+  volume:
+    name: mysql-vol
+    accessModes: [ "ReadWriteOnce" ]
+    storage: 1Gi
+
+nginx:
+  name: nginx-articles
+  replicas: 1
+  nginxImage: nginx
+  getarticleImage: aceberg/get-article
+  serviceName: nginx-articles
+
+ingress:
+  name: article-ingress
+  host: minikube.local
+
+secret:
+  name: mysqlsecret
+  username: root
+  password: qwerty
+  dbuser: hometask
+  dbpass: qwerty
+  dbname: hometask
