@@ -1,10 +1,9 @@
-#
 namespace: hometask
 labels: article
 
 mysql:
   name: mysql-set
-  replicas: 2
+  replicas: 1
   terminationGracePeriod: 10
   image: mysql
   serviceName: mysql-service
